@@ -1,0 +1,122 @@
+.contenedor {
+    width: 100%;
+    
+    padding: 70px;
+    background-color: #ecf0f5;   
+    position: relative;
+    z-index: 1; 
+
+}
+.contenedor-1 {
+    text-align: center;
+    background: white;
+    padding: 2rem 2rem 2rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    max-width: 95%;
+    margin: 0 auto;
+}
+
+.botones_encabezado_crud {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.botones_encabezado_crud
+.btn {
+    background-color: #0661FC;
+    color: white;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.botones_encabezado_crud
+.btn:hover {
+    background-color: #003087;
+}
+
+/* Tabla */
+.tabla_crud {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.tabla_crud thead {
+    background-color: #90A0F9;
+    color: white;
+}
+
+.tabla_crud th {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #EAEFFD;
+}
+
+
+
+.table_crud tr:hover {
+    background-color: #EAEFFD; 
+   
+    transform: translateY(-1px); 
+}
+
+.tabla_crud td{
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.7rem;
+    color: black;
+}
+.tabla_crud tr:not(:last-child) {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tabla_crud td a {
+    margin: 0 6px;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.tabla_crud td a:hover {
+    transform: scale(1.2);
+}
+
+/* Colores iconos de tabla */
+.tabla_crud td i.fa-pen { color: #388e3c; }     
+.tabla_crud td i.fa-eye { color: #0661FC; }      
+.tabla_crud td i.fa-trash { color: #d32f2f; }    
+
+/* Paginación */
+.pagination {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.pagination .btn {
+    background-color: #0661FC;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.pagination .btn:hover {
+    background-color: #003087;
+}

@@ -1,0 +1,128 @@
+body {
+    font-family: Poppins;
+    background-image: url('../img/fondotec1.png');
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100vh;
+    padding-right: 5%;
+}
+
+.container {
+    background: rgba(78, 106, 168, 0.22);
+    background-attachment: fixed;
+    border: 1px solid white;
+    padding: 2%;
+    border-radius: 18px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 15%;
+    height: 21.5vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 5%;
+}
+
+h1 {
+    color: #f0f8ff;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 10%;
+    font-weight: normal;
+    text-align: center;
+}
+
+.contenedor_sesion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10%;
+    height: 30%; 
+}
+
+.file-label {
+    background-color: #070552;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    width: 91%;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+
+.icon-upload {
+    font-size: 12px;
+}
+
+.file-label:hover {
+    background-color: #030238;
+}
+
+.file-name {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #e0e0e0;
+    text-align: center;
+    word-break: break-word;
+    width: 100%;
+}
+
+
+.submit-btn {
+    background: linear-gradient(to right, #1C198B 0%, #4D5DC4 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    width: 100%;
+    height: 40%;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+    border: 1px solid white;
+    transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.loading {
+    display: none;
+    color: #ffffff;
+    text-align: center;
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 11px;
+    text-align: center;
+    min-height: 16px;
+}
+
+/* Animación para el spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}

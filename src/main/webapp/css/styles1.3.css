@@ -1,0 +1,114 @@
+body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f5f5f5;
+        
+        color: #333;
+    }
+
+    .container {
+        flex: 1; 
+        text-align: center;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        /*box-shadow: 0 4px 15px rgba(102, 101, 235, 0.4);*/
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-width: 20%;
+        height: 100%;
+    }
+    
+
+
+    h2 {
+        color: #3F71FF;
+        margin-bottom: 2rem;
+    }
+    
+    
+
+    .area_carga {
+        border: 2px dashed #3F71FF;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 20px;
+        height: 33%;
+    }
+
+    .area_carga:hover {
+        background-color: rgba(63, 113, 255, 0.25);
+        border-color: #004FD5;
+    }
+
+    .fingerprint-icon {
+        width: 38px;
+        opacity: 0.2;
+        margin-bottom: 1rem;
+        margin-top: 0.3rem;
+        
+    }
+
+    .btn {
+        background-color: #3F71FF;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+        background-color: #2B32B7;
+    }
+
+    .btn:disabled {
+        background-color: #95a5a6;
+        cursor: not-allowed;
+    }
+
+.previsualizacion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    min-height: 250px; 
+    border: 1px dashed #ddd; 
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+#previewImage {
+    max-width: 100%;
+    max-height: 190px;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    display: block; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .progreso {
+        width: 100%;
+        background-color: #ecf0f1;
+        border-radius: 5px;
+        margin-top: 1rem;
+    }
+
+    .barra_progreso {
+        height: 20px;
+        background-color: #2B32B7;
+        border-radius: 5px;
+        width: 0%;
+        transition: width 0.3s;
+    }
+
+    #progressText {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
