@@ -78,5 +78,7 @@ Este documento resume las tareas **faltantes**, ideas **opcionales** y recomenda
 - El campo `estado` puede ser `"Ingreso Exitoso"` o `"Ingreso Fallido"` según corresponda.
 
 ---
+Si necesitan hacer pruebas mandenme mensaje para levantar el railway para que puedan usar la bd y el microservicio y puedan entrar al sistema eso o entren directamente a uno de los jsps aunque no se si sigue funcionando eso xd. Los servicios de Piero si están funcionando.
+
 
 Fino chatgpt xdxd
