@@ -1,0 +1,10 @@
+Controller\Historial_Registro_Controller.class
+Controller\ValidacionController2.class
+config\db.class
+Controller\ValidarHuella.class
+com\mycompany\soa\JakartaRestConfiguration.class
+clases\ClassRegistro.class
+Controller\IdentificacionController.class
+Controller\CerrarSesionController.class
+com\mycompany\soa\resources\JakartaEE10Resource.class
+config\bdprueba.class

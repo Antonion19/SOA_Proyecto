@@ -1,0 +1,229 @@
+.container-historial {
+    text-align: center;
+    background: white;
+    /*padding: 2rem;*/
+    padding: 2rem 2rem 0rem 3rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    height: 86%;
+    margin: 5%;
+}
+
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.historial-subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.historial-date {
+    font-weight: bold;
+    color: #333;
+}
+
+.historial-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    /* grid-template-columns: 3% 9% 9% 10% 10% 10% 10% 10% 9% 9%; /* Anchos personalizados */
+    grid-template-columns: 3% 12% 10% 11% 10% 10% 12% 12% 10% 10%; 
+    color: #fff;
+    background-color: #9AB0FF;
+    padding: 0.75rem;
+    font-weight: 600; /* Semibold */
+    border-radius: 5px;
+    margin-bottom: 0.2rem;
+    font-size: 13px;
+}
+
+.table-row:hover {
+    background-color: #EAEFFD; 
+   
+    transform: translateY(-1px); 
+}
+.header-item {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: 3% 12% 10% 11% 10% 10% 12% 12% 10% 10%; 
+
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    font-size: 11px;
+}
+
+.table-cell {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.actions-cell {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.view-btn { color: #0661FC; }
+.edit-btn { color: #f39c12; }
+.delete-btn { color: #e74c3c; }
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.export-btn {
+    background-color: #0661FC;
+    color: #eee;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 0rem;
+    font-size: 11px;
+}
+
+.export-btn:hover {
+    background-color: #030238;
+}
+
+.date-filters {
+    display: flex;
+    gap: 1rem; 
+    align-items: flex-end; 
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap; 
+}
+
+.date-filter {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px; 
+
+}
+
+.search-filter {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; 
+    min-width: 250px; 
+    
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #EAEFFD;
+    border-radius: 5px;
+    padding: 0rem 1rem;
+    height: 4.5vh;
+}
+
+.search-box i {
+    margin-right: 0.5rem;
+    color: #90A0F9;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: #90A0F9;
+}
+
+.export-btn {
+    margin-left: auto; 
+    height: 42px; 
+}
+
+
+
+input[type="date"] {
+    padding: 9.7px 12px;
+    /*border: 2px solid #9AB0FF;
+    background-color: #9AB0FF; */
+    border: 2px solid #0661FC;
+    background-color: #0661FC; 
+    border-radius: 6px;
+    
+    color: #eee;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+
+input[type="date"]:hover {
+    color: #fff;
+    border-color: #030238;
+    background-color: #030238;
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) ; 
+    padding: 4px;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.pagination-simple {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: -0.5rem;
+}
+
+.pagination-btn {
+    padding: 0.7rem 0.9rem;
+    background-color: #0661FC;
+    border: 1px solid #EAEFFD;
+    border-radius: 7px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 0.6rem;
+}
+
+
+.pagination-btn:hover {
+    background-color: #030238;
+}
+
+.current-page {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
