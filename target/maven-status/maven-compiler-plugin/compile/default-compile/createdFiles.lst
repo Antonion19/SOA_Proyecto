@@ -1,5 +1,6 @@
 Controller\Historial_Registro_Controller.class
 Controller\ValidacionController2.class
+Controller\RegistroVisitaServlet.class
 config\db.class
 Controller\ValidarHuella.class
 com\mycompany\soa\JakartaRestConfiguration.class

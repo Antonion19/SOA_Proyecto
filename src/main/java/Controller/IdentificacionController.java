@@ -58,8 +58,9 @@ public class IdentificacionController extends HttpServlet {
     }
 
    
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+// --- El método doPost de tu servlet principal (IdentificacionController) ---
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
@@ -67,10 +68,15 @@ public class IdentificacionController extends HttpServlet {
         Connection con = null;
         boolean respuestaYaEnviada = false;
 
+        // --- CAMBIO: Declarar nombreCompleto y dni aquí para un ámbito más amplio ---
+        String nombreCompleto = null;
+        int dni = 0; // Inicializar con un valor por defecto
+        // --- FIN CAMBIO ---
+
         try {
             // para obtnr el archivo de huella
             Part filePart = request.getPart("huellaFile");
-            
+
             //Validar que sea una imagen
             if (!filePart.getContentType().startsWith("image/")) {
                 jsonResponse.put("success", false);
@@ -79,41 +85,48 @@ public class IdentificacionController extends HttpServlet {
                 respuestaYaEnviada = true;
                 return;
             }
-            
+
             // Generar hash 
             String hashHuella = generateImageHash(filePart.getInputStream());
             System.out.println("Hash generado de la huella: " + hashHuella);
-            
+
             // Buscar en la base de datos 
-            db database = new db();
+            // NOTA: Asegúrate de que tu clase 'db' sea accesible y esté bien configurada.
+            // Los métodos dummy 'db' y 'validarConReniec' deben ser reemplazados por tus implementaciones reales.
+            db database = new db(); 
             con = database.Conexion();
-            
-           
+
             String sql = "SELECT numeroDocumento FROM huella_persona WHERE image_template = ?";
-            
+
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, hashHuella);
             ResultSet rs = stmt.executeQuery();
-            
+
             if (rs.next()) {
-                int dni = rs.getInt("numeroDocumento");
+                // --- CAMBIO: Asignar a la variable 'dni' declarada al inicio del método ---
+                dni = rs.getInt("numeroDocumento");
+                // --- FIN CAMBIO ---
                 System.out.println("DNI encontrado: " + dni);
-                
+
                 // validar con API RENIEC
                 JSONObject datosReniec = validarConReniec(dni);
 
                 if (datosReniec != null && datosReniec.has("nombres")) {
+                    // --- CAMBIO: Asignar a la variable 'nombreCompleto' declarada al inicio del método ---
+                    nombreCompleto = datosReniec.getString("nombres") + " " +
+                                     datosReniec.getString("apellidoPaterno") + " " +
+                                     datosReniec.getString("apellidoMaterno");
+                    // --- FIN CAMBIO ---
+
                     // Crear sesión de usuario
                     HttpSession session = request.getSession();
                     session.setAttribute("usuario", dni);
-                    session.setAttribute("nombreCompleto", 
-                        datosReniec.getString("nombres") + " " +
-                        datosReniec.getString("apellidoPaterno") + " " +
-                        datosReniec.getString("apellidoMaterno"));
-                    
+                    session.setAttribute("nombreCompleto", nombreCompleto); // Usar la variable de ámbito más amplio
+
                     jsonResponse.put("success", true);
                     System.out.println("Validación exitosa para DNI: " + dni);
-                    // ---- LLAMADA AL MICROSERVICIO ----
+
+                    // ---- LLAMADA AL MICROSERVICIO (Validar Alumno) ----
                     try {
                         String urlServicio = "https://microserviciosoa-production.up.railway.app/api/validarAlumno";
 
@@ -122,8 +135,9 @@ public class IdentificacionController extends HttpServlet {
                         jsonEnvio.put("nombres", datosReniec.optString("nombres", ""));
                         jsonEnvio.put("apellidoPaterno", datosReniec.optString("apellidoPaterno", ""));
                         jsonEnvio.put("apellidoMaterno", datosReniec.optString("apellidoMaterno", ""));
-                        System.out.println("JSON enviado al microservicio:");
+                        System.out.println("JSON enviado al microservicio validarAlumno:");
                         System.out.println(jsonEnvio.toString());
+
                         // Crear conexión HTTP POST
                         URL url = new URL(urlServicio);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -131,10 +145,11 @@ public class IdentificacionController extends HttpServlet {
                         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                         conn.setRequestProperty("Accept", "application/json");
                         conn.setDoOutput(true);
+
                         // Enviar JSON al microservicio
                         try (OutputStream os = conn.getOutputStream()) {
                             String jsonUTF8 = jsonEnvio.toString();
-                            byte[] input = jsonUTF8.getBytes(StandardCharsets.UTF_8); // usa esto
+                            byte[] input = jsonUTF8.getBytes(StandardCharsets.UTF_8);
                             os.write(input, 0, input.length);
                         }
 
@@ -154,12 +169,13 @@ public class IdentificacionController extends HttpServlet {
                             // Obtener datos y decidir redirección
                             String rol = respuestaMicro.optString("rol", "");
                             String destino;
-                           // ---- VERIFICAR REINTENTO DE INGRESO ----
+
+                            // ---- VERIFICAR REINTENTO DE INGRESO ----
                             try {
                                 String urlVerificacion = "http://localhost:8081/ValidarReintento_MServ_SOA/api/validar-reintento";
 
                                 JSONObject jsonVerificacion = new JSONObject();
-                                jsonVerificacion.put("dni", String.valueOf(dni));
+                                jsonVerificacion.put("dni", String.valueOf(dni)); // Usar la variable 'dni' de ámbito más amplio
 
                                 URL urlReintento = new URL(urlVerificacion);
                                 HttpURLConnection connReintento = (HttpURLConnection) urlReintento.openConnection();
@@ -175,7 +191,6 @@ public class IdentificacionController extends HttpServlet {
 
                                 int responseReintento = connReintento.getResponseCode();
 
-                                // Usar el stream correcto según el código
                                 InputStream is = (responseReintento < 400)
                                         ? connReintento.getInputStream()
                                         : connReintento.getErrorStream();
@@ -187,7 +202,6 @@ public class IdentificacionController extends HttpServlet {
                                 }
                                 inReintento.close();
 
-                                // Procesar JSON independientemente del código de estado
                                 JSONObject respuestaReintento = new JSONObject(responseStringReintento.toString());
 
                                 if (!respuestaReintento.optBoolean("puedeIngresar", true)) {
@@ -208,22 +222,19 @@ public class IdentificacionController extends HttpServlet {
                                 e.printStackTrace();
                             }
 
-
-                               
-                            // ---- ENVIAR REGISTRO DE INGRESO ----
-                            try {
-                                String nombreCompleto = jsonEnvio.getString("nombres") + " " +
-                                                        jsonEnvio.getString("apellidoPaterno") + " " +
-                                                        jsonEnvio.getString("apellidoMaterno");
-
+                            // --- Lógica de redirección y REGISTRO CONDICIONAL ---
+                            // El registro de ingreso exitoso se hace AHORA solo si el rol no es vacío.
+                            // Para visitantes (rol vacío), la responsabilidad de registro se delega a visita.jsp.
+                            if (rol.equalsIgnoreCase("Administrador")) {
+                                destino = "dash.jsp";
+                                // Registrar ingreso exitoso para Administrador
+                                enviarRegistro(nombreCompleto, String.valueOf(dni), "Administrador", "Labores", respuestaMicro.optString("sede", ""), "Ingreso Exitoso");
+                            } else if (!rol.isEmpty()) { // Rol definido (Estudiante, Profesor, Trabajador)
+                                destino = "ingreso.jsp";
+                                // Determinar ingresante y motivo basado en el rol
                                 String ingresante = "";
                                 String motivo = "";
-
                                 switch (rol) {
-                                    case "Administrador":
-                                        ingresante = "Administrador";
-                                        motivo = "Labores";
-                                        break;
                                     case "Estudiante":
                                         ingresante = "Estudiante";
                                         motivo = "Estudios";
@@ -237,73 +248,29 @@ public class IdentificacionController extends HttpServlet {
                                         motivo = "Labores";
                                         break;
                                 }
-
-                                JSONObject registroJson = new JSONObject();
-                                registroJson.put("nombre", nombreCompleto);
-                                registroJson.put("dni", String.valueOf(dni));
-                                registroJson.put("ingresante", ingresante);
-                                registroJson.put("motivo", motivo);
-                                registroJson.put("sede", respuestaMicro.optString("sede", ""));
-
-                                // Obtener la hora actual en Lima sin zona horaria embebida
-                                LocalDateTime limaTime = LocalDateTime.now(ZoneId.of("America/Lima")).plusHours(5);
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                                System.out.println("Fecha Lima +5h formateada: " + limaTime.format(formatter));
-                                registroJson.put("fecha", limaTime.format(formatter));
-
-
-
-                                registroJson.put("estado", "Ingreso Exitoso");
-
-                                URL registroUrl = new URL("https://servicio-utp.fly.dev/api/registros");
-                                HttpURLConnection connRegistro = (HttpURLConnection) registroUrl.openConnection();
-                                connRegistro.setRequestMethod("POST");
-                                connRegistro.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                                connRegistro.setDoOutput(true);
-
-                                try (OutputStream os = connRegistro.getOutputStream()) {
-                                    byte[] input = registroJson.toString().getBytes(StandardCharsets.UTF_8);
-                                    os.write(input, 0, input.length);
-                                }
-
-                                int registroResponse = connRegistro.getResponseCode();
-                                if (registroResponse == HttpURLConnection.HTTP_OK || registroResponse == HttpURLConnection.HTTP_CREATED) {
-                                    System.out.println(" Registro de ingreso guardado correctamente.");
-                                } else {
-                                    System.err.println(" Error al registrar ingreso. Código: " + registroResponse);
-                                }
-
-                            } catch (Exception e) {
-                                System.err.println("✖ Error al enviar datos de registro: " + e.getMessage());
-                                e.printStackTrace();
-                            }
-
-                            if (rol.equalsIgnoreCase("Administrador")) {
-                                destino = "dash.jsp";
-                                //guardar registro
-                            } else if (!rol.isEmpty()) {
-                                destino = "ingreso.jsp";
-                                //guardar registro
-                            } else {
+                                // Registrar ingreso exitoso para roles definidos
+                                enviarRegistro(nombreCompleto, String.valueOf(dni), ingresante, motivo, respuestaMicro.optString("sede", ""), "Ingreso Exitoso");
+                            } else { // Rol vacío (es un Visitante)
                                 destino = "visita.jsp";
+                                // IMPORTANTE: NO SE REGISTRA NADA AQUÍ PARA VISITANTES.
+                                // El registro para visitantes se hará desde visita.jsp a través de RegistroVisitaServlet.
                             }
 
-                            // Guardar datos en sesión
-                            session = request.getSession();
+                            // Guardar datos adicionales en sesión para las páginas de destino
+                            session = request.getSession(); // Re-obtener la sesión para asegurar que está activa
                             session.setAttribute("codigo", respuestaMicro.optString("codigoUTP", ""));
                             session.setAttribute("rol", rol);
                             session.setAttribute("restriccion", respuestaMicro.optString("restriccion", ""));
                             session.setAttribute("sede", respuestaMicro.optString("sede", ""));
-                            session.setAttribute("nombreCompleto", jsonEnvio.getString("nombres") + " " + 
-                                                jsonEnvio.getString("apellidoPaterno") + " " + 
-                                                jsonEnvio.getString("apellidoMaterno"));
+                            // Usar la variable 'nombreCompleto' de ámbito más amplio
+                            session.setAttribute("nombreCompleto", nombreCompleto); 
 
                             // Redirigir
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
                             JSONObject json = new JSONObject();
                             json.put("success", true);
-                            json.put("redirect", destino);  // puede ser "dash.jsp", "ingreso.jsp", etc.
+                            json.put("redirect", destino);
                             response.getWriter().write(json.toString());
                             respuestaYaEnviada = true;
                             return;
@@ -314,7 +281,7 @@ public class IdentificacionController extends HttpServlet {
                         }
 
                     } catch (Exception ex) {
-                        System.err.println("Error llamando al microservicio: " + ex.getMessage());
+                        System.err.println("Error llamando al microservicio validarAlumno: " + ex.getMessage());
                         ex.printStackTrace();
                         jsonResponse.put("success", false);
                         jsonResponse.put("message", "Error al procesar datos del alumno");
@@ -324,15 +291,15 @@ public class IdentificacionController extends HttpServlet {
                     jsonResponse.put("success", false);
                     jsonResponse.put("message", "DNI no registrado en RENIEC");
                     System.out.println("DNI no válido en RENIEC: " + dni);
-                    registrarIngresoFallido();
+                    registrarIngresoFallido(); // Registrar ingreso fallido si el DNI no está en RENIEC
                 }
             } else {
                 jsonResponse.put("success", false);
                 jsonResponse.put("message", "Huella digital no reconocida");
                 System.out.println("Huella no encontrada en la base de datos");
-                registrarIngresoFallido();
+                registrarIngresoFallido(); // Registrar ingreso fallido si la huella no se encuentra
             }
-            
+
         } catch (Exception e) {
             jsonResponse.put("success", false);
             jsonResponse.put("message", "Error en el servidor: " + e.getMessage());
@@ -451,6 +418,54 @@ private JSONObject validarConReniec(int dni) {
     } catch (Exception e) {
         System.err.println("Excepción al consultar RENIEC: " + e.getMessage());
         return null;
+    }
+}
+
+private void enviarRegistro(String nombre, String dni, String ingresante, String motivo, String sede, String estado) {
+    try {
+        JSONObject registroJson = new JSONObject();
+        registroJson.put("nombre", nombre != null ? nombre : JSONObject.NULL);
+        registroJson.put("dni", dni != null ? dni : JSONObject.NULL);
+        registroJson.put("ingresante", ingresante != null ? ingresante : JSONObject.NULL);
+        registroJson.put("motivo", motivo != null ? motivo : JSONObject.NULL);
+        registroJson.put("sede", sede != null ? sede : JSONObject.NULL);
+
+        // Obtener la hora actual en Lima sin zona horaria embebida
+        LocalDateTime limaTime = LocalDateTime.now(ZoneId.of("America/Lima")).plusHours(5);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        registroJson.put("fecha", limaTime.format(formatter));
+        registroJson.put("estado", estado != null ? estado : JSONObject.NULL);
+
+        URL registroUrl = new URL("https://servicio-utp.fly.dev/api/registros");
+        HttpURLConnection connRegistro = (HttpURLConnection) registroUrl.openConnection();
+        connRegistro.setRequestMethod("POST");
+        connRegistro.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        connRegistro.setDoOutput(true);
+
+        try (OutputStream os = connRegistro.getOutputStream()) {
+            byte[] input = registroJson.toString().getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        int registroResponse = connRegistro.getResponseCode();
+        if (registroResponse == HttpURLConnection.HTTP_OK || registroResponse == HttpURLConnection.HTTP_CREATED) {
+            System.out.println("✔ Registro de ingreso guardado correctamente. Código: " + registroResponse);
+        } else {
+            System.err.println("✖ Error al registrar ingreso. Código: " + registroResponse);
+            // Opcional: leer y loguear el cuerpo de la respuesta de error
+            try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connRegistro.getErrorStream(), StandardCharsets.UTF_8))) {
+                StringBuilder errorResponse = new StringBuilder();
+                String errorLine;
+                while ((errorLine = errorReader.readLine()) != null) {
+                    errorResponse.append(errorLine);
+                }
+                System.err.println("  Respuesta de error: " + errorResponse.toString());
+            }
+        }
+        connRegistro.disconnect();
+    } catch (Exception e) {
+        System.err.println("✖ Error al enviar datos de registro (enviarRegistro): " + e.getMessage());
+        e.printStackTrace();
     }
 }
 
