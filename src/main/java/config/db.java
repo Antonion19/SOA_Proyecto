@@ -7,7 +7,7 @@ public class db {
     Connection con;
 
     // Datos de Railway
-    String url = "jdbc:mysql://crossover.proxy.rlwy.net:36289/railway?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    String url = "jdbc:mysql://crossover.proxy.rlwy.net:36289/railway?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima";
     String user = "root";
     String pass = "JSqwrsvehPwsdADYTxIHpRMUixzgzPlu";
 

@@ -25,6 +25,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 
 
@@ -150,6 +154,74 @@ public class IdentificacionController extends HttpServlet {
                             // Obtener datos y decidir redirección
                             String rol = respuestaMicro.optString("rol", "");
                             String destino;
+                               
+                            // ---- ENVIAR REGISTRO DE INGRESO ----
+                            try {
+                                String nombreCompleto = jsonEnvio.getString("nombres") + " " +
+                                                        jsonEnvio.getString("apellidoPaterno") + " " +
+                                                        jsonEnvio.getString("apellidoMaterno");
+
+                                String ingresante = "";
+                                String motivo = "";
+
+                                switch (rol) {
+                                    case "Administrador":
+                                        ingresante = "Administrador";
+                                        motivo = "Labores";
+                                        break;
+                                    case "Estudiante":
+                                        ingresante = "Estudiante";
+                                        motivo = "Estudios";
+                                        break;
+                                    case "Profesor":
+                                        ingresante = "Profesor";
+                                        motivo = "Docencia";
+                                        break;
+                                    case "Trabajador":
+                                        ingresante = "Trabajador";
+                                        motivo = "Labores";
+                                        break;
+                                }
+
+                                JSONObject registroJson = new JSONObject();
+                                registroJson.put("nombre", nombreCompleto);
+                                registroJson.put("dni", String.valueOf(dni));
+                                registroJson.put("ingresante", ingresante);
+                                registroJson.put("motivo", motivo);
+                                registroJson.put("sede", respuestaMicro.optString("sede", ""));
+
+                                // Obtener la hora actual en Lima sin zona horaria embebida
+                                LocalDateTime limaTime = LocalDateTime.now(ZoneId.of("America/Lima")).plusHours(5);
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                                System.out.println("Fecha Lima +5h formateada: " + limaTime.format(formatter));
+                                registroJson.put("fecha", limaTime.format(formatter));
+
+
+
+                                registroJson.put("estado", "Ingreso Exitoso");
+
+                                URL registroUrl = new URL("https://servicio-utp.fly.dev/api/registros");
+                                HttpURLConnection connRegistro = (HttpURLConnection) registroUrl.openConnection();
+                                connRegistro.setRequestMethod("POST");
+                                connRegistro.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                                connRegistro.setDoOutput(true);
+
+                                try (OutputStream os = connRegistro.getOutputStream()) {
+                                    byte[] input = registroJson.toString().getBytes(StandardCharsets.UTF_8);
+                                    os.write(input, 0, input.length);
+                                }
+
+                                int registroResponse = connRegistro.getResponseCode();
+                                if (registroResponse == HttpURLConnection.HTTP_OK || registroResponse == HttpURLConnection.HTTP_CREATED) {
+                                    System.out.println(" Registro de ingreso guardado correctamente.");
+                                } else {
+                                    System.err.println(" Error al registrar ingreso. Código: " + registroResponse);
+                                }
+
+                            } catch (Exception e) {
+                                System.err.println("✖ Error al enviar datos de registro: " + e.getMessage());
+                                e.printStackTrace();
+                            }
 
                             if (rol.equalsIgnoreCase("Administrador")) {
                                 destino = "dash.jsp";
@@ -197,11 +269,13 @@ public class IdentificacionController extends HttpServlet {
                     jsonResponse.put("success", false);
                     jsonResponse.put("message", "DNI no registrado en RENIEC");
                     System.out.println("DNI no válido en RENIEC: " + dni);
+                    registrarIngresoFallido();
                 }
             } else {
                 jsonResponse.put("success", false);
                 jsonResponse.put("message", "Huella digital no reconocida");
                 System.out.println("Huella no encontrada en la base de datos");
+                registrarIngresoFallido();
             }
             
         } catch (Exception e) {
@@ -240,6 +314,49 @@ public class IdentificacionController extends HttpServlet {
         return java.util.Base64.getEncoder().encodeToString(hashBytes);
     }
 
+private void registrarIngresoFallido() {
+    try {
+        JSONObject registroJson = new JSONObject();
+        registroJson.put("nombre", JSONObject.NULL);
+        registroJson.put("dni", JSONObject.NULL);
+        registroJson.put("ingresante", JSONObject.NULL);
+        registroJson.put("motivo", JSONObject.NULL);
+        registroJson.put("sede", JSONObject.NULL);
+
+        // Fecha Lima +5h solo para registrar correctamente
+        LocalDateTime limaTime = LocalDateTime.now(ZoneId.of("America/Lima")).plusHours(5);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        registroJson.put("fecha", limaTime.format(formatter));
+
+        registroJson.put("estado", "Ingreso Fallido");
+
+        URL registroUrl = new URL("https://servicio-utp.fly.dev/api/registros");
+        HttpURLConnection conn = (HttpURLConnection) registroUrl.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = registroJson.toString().getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
+            System.out.println("✔ Ingreso fallido registrado correctamente.");
+        } else {
+            System.err.println("✖ Error al registrar ingreso fallido. Código: " + responseCode);
+        }
+
+        conn.disconnect();
+
+    } catch (Exception e) {
+        System.err.println("✖ Error en registrarIngresoFallido: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+      
     //consultar la API RENIEC
 private JSONObject validarConReniec(int dni) {
     final String urlBase = "https://api.apis.net.pe/v2/reniec/dni?numero=";
