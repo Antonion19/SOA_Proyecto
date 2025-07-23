@@ -78,7 +78,8 @@
 
             <!-- Mensajes de error -->
             <div id="errorMessage" class="alert alert-danger mt-3 d-none" role="alert"></div>
-
+            <!-- Mensaje personalizado de rechazo de ingreso -->
+            <div id="mensajeRechazo" class="alert alert-warning mt-3 d-none" role="alert"></div>
         </form>
     </div>
 </div>

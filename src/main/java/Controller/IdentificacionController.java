@@ -154,6 +154,61 @@ public class IdentificacionController extends HttpServlet {
                             // Obtener datos y decidir redirección
                             String rol = respuestaMicro.optString("rol", "");
                             String destino;
+                           // ---- VERIFICAR REINTENTO DE INGRESO ----
+                            try {
+                                String urlVerificacion = "http://localhost:8081/ValidarReintento_MServ_SOA/api/validar-reintento";
+
+                                JSONObject jsonVerificacion = new JSONObject();
+                                jsonVerificacion.put("dni", String.valueOf(dni));
+
+                                URL urlReintento = new URL(urlVerificacion);
+                                HttpURLConnection connReintento = (HttpURLConnection) urlReintento.openConnection();
+                                connReintento.setRequestMethod("POST");
+                                connReintento.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                                connReintento.setRequestProperty("Accept", "application/json");
+                                connReintento.setDoOutput(true);
+
+                                try (OutputStream os = connReintento.getOutputStream()) {
+                                    byte[] input = jsonVerificacion.toString().getBytes(StandardCharsets.UTF_8);
+                                    os.write(input, 0, input.length);
+                                }
+
+                                int responseReintento = connReintento.getResponseCode();
+
+                                // Usar el stream correcto según el código
+                                InputStream is = (responseReintento < 400)
+                                        ? connReintento.getInputStream()
+                                        : connReintento.getErrorStream();
+
+                                BufferedReader inReintento = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                                StringBuilder responseStringReintento = new StringBuilder();
+                                while ((inputLine = inReintento.readLine()) != null) {
+                                    responseStringReintento.append(inputLine);
+                                }
+                                inReintento.close();
+
+                                // Procesar JSON independientemente del código de estado
+                                JSONObject respuestaReintento = new JSONObject(responseStringReintento.toString());
+
+                                if (!respuestaReintento.optBoolean("puedeIngresar", true)) {
+                                    // No se permite ingreso
+                                    JSONObject json = new JSONObject();
+                                    json.put("success", false);
+                                    json.put("message", respuestaReintento.optString("motivo", "Ingreso denegado por intento reciente."));
+                                    json.put("ultimoIngreso", respuestaReintento.optString("ultimoIngreso", ""));
+                                    response.setContentType("application/json");
+                                    response.setCharacterEncoding("UTF-8");
+                                    response.getWriter().write(json.toString());
+                                    respuestaYaEnviada = true;
+                                    return;
+                                }
+
+                            } catch (Exception e) {
+                                System.err.println("✖ Error al verificar reintento de ingreso: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+
+
                                
                             // ---- ENVIAR REGISTRO DE INGRESO ----
                             try {

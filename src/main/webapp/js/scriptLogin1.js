@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         loading.style.display = 'block';
         errorMessage.textContent = '';
-
+        document.getElementById("mensajeRechazo").classList.add("d-none"); // ← aquí
         
         const formData = new FormData();
         formData.append('huellaFile', file);
@@ -91,12 +91,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
    
     function handleSuccess(data) {
-       if (data.success && data.redirect) {
+        const mensajeRechazo = document.getElementById("mensajeRechazo");
+
+        if (data.success && data.redirect) {
             window.location.href = data.redirect;
         } else {
-            showError(data.message || 'Huella no reconocida');
+            // Mostrar mensaje personalizado de rechazo si viene en la respuesta
+            if (data.message) {
+                mensajeRechazo.textContent = data.message;
+                mensajeRechazo.classList.remove("d-none");
+            } else {
+                showError('Huella no reconocida');
+            }
         }
     }
+
 
     function handleError(error) {
         console.error('Error:', error);
