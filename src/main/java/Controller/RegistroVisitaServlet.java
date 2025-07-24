@@ -69,7 +69,7 @@ public class RegistroVisitaServlet extends HttpServlet {
             registroJson.put("dni", dni != null ? dni : JSONObject.NULL);
             registroJson.put("ingresante", "Visitante"); // Siempre "Visitante" para este flujo
             registroJson.put("motivo", motivo != null ? motivo : JSONObject.NULL); // El motivo del combobox
-            registroJson.put("sede", JSONObject.NULL); // Sede se envía como NULL según lo solicitado
+            registroJson.put("sede","Sur"); // Sede se envía como NULL según lo solicitado
 
             // Obtener la hora actual en Lima sin zona horaria embebida, con el ajuste de +5 horas
             LocalDateTime limaTime = LocalDateTime.now(ZoneId.of("America/Lima")).plusHours(5);
